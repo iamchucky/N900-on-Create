@@ -1,7 +1,7 @@
 #ifndef ARTAGLOCALIZER_H
 #define ARTAGLOCALIZER_H
 
-#include "ARToolKitPlus/ARToolKitPlus.h"
+#include "ARToolKitPlus/TrackerSingleMarker.h"
 #include "ARtag.h"
 
 class ARtagLocalizer
@@ -33,6 +33,6 @@ private:
 	std::vector<ARtag> mytag;
 	float patternWidth_;
 	float patternCenter_[2];
-	ARToolKitPlus::TrackerSingleMarker *tracker;
+        ARToolKitPlus::TrackerSingleMarker *tracker;
 };
 #endif

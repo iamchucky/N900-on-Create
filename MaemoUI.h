@@ -11,7 +11,7 @@
 #include "ImageView.h"
 #include <FCam/N900.h>
 #include <QStackedWidget>
-//#include "Panorama.h"
+#include "ObjDetect.h"
 
 class Viewfinder;
 //class FeaturesWizard;
@@ -30,7 +30,7 @@ Viewfinder * viewFinder;
 QStackedWidget * stack;
 FeatureType featureType;
 MatchType matchType;
-//Panorama * panorama_widget;
+ObjDetect * objdetect_widget;
 bool panorama;
 
 public:

@@ -13,226 +13,229 @@
 #include <sstream>
 #include <iostream>
 #include "N900Helpers.h"
-//#include "Panorama.h"
+#include "ObjDetect.h"
 
 // Create and initialize the Maemo.
 MaemoUI::MaemoUI ( QWidget * parent ) : QMainWindow ( parent ),
-  featureType ( SURF ), matchType ( Ratio ), panorama ( false )
+featureType ( SURF ), matchType ( Ratio ), panorama ( false )
 {
-  QStatusBar * statusBar = new QStatusBar ( this );
+    QStatusBar * statusBar = new QStatusBar ( this );
 
-  QObject::connect ( this, SIGNAL ( alert ( const QString & ) ),
-                     statusBar, SLOT ( showMessage ( const QString & ) ) );
-  setStatusBar ( statusBar );
+    QObject::connect ( this, SIGNAL ( alert ( const QString & ) ),
+                       statusBar, SLOT ( showMessage ( const QString & ) ) );
+    setStatusBar ( statusBar );
 
-  // Create the main window.
-  setWindowTitle ( tr ( "Detector" ) );
+    // Create the main window.
+    setWindowTitle ( tr ( "Detector" ) );
 
-  stack = new QStackedWidget ( this );
-  setCentralWidget ( stack );
+    stack = new QStackedWidget ( this );
+    setCentralWidget ( stack );
 
-  // Create the menu bar.
-  QMenuBar * menuBar = new QMenuBar ( this );
+    // Create the menu bar.
+    QMenuBar * menuBar = new QMenuBar ( this );
 
-  QAction * setFeatureType = new QAction ( tr ( "Set Feature Type" ), menuBar );
-  QObject::connect ( setFeatureType, SIGNAL ( triggered () ),
-                     this, SLOT ( setFeatureTypeAction () ) );
-  menuBar->addAction ( setFeatureType );
+    QAction * setFeatureType = new QAction ( tr ( "Set Feature Type" ), menuBar );
+    QObject::connect ( setFeatureType, SIGNAL ( triggered () ),
+                       this, SLOT ( setFeatureTypeAction () ) );
+    menuBar->addAction ( setFeatureType );
 
-  QAction * setMatchType = new QAction ( tr ( "Set Match Type" ), menuBar );
-  QObject::connect ( setMatchType, SIGNAL ( triggered () ),
-                     this, SLOT ( setMatchTypeAction () ) );
-  menuBar->addAction ( setMatchType );
+    QAction * setMatchType = new QAction ( tr ( "Set Match Type" ), menuBar );
+    QObject::connect ( setMatchType, SIGNAL ( triggered () ),
+                       this, SLOT ( setMatchTypeAction () ) );
+    menuBar->addAction ( setMatchType );
 
-  QAction * setMode = new QAction ( tr ( "Set Mode" ), menuBar );
-  QObject::connect ( setMode, SIGNAL ( triggered () ),
-                     this, SLOT ( setModeAction () ) );
-  menuBar->addAction ( setMode );
+    QAction * setMode = new QAction ( tr ( "Set Mode" ), menuBar );
+    QObject::connect ( setMode, SIGNAL ( triggered () ),
+                       this, SLOT ( setModeAction () ) );
+    menuBar->addAction ( setMode );
 
-  setMenuBar ( menuBar );
+    setMenuBar ( menuBar );
 
-  viewFinder = new Viewfinder ( this );
-  stack->addWidget ( viewFinder );
+    viewFinder = new Viewfinder ( this );
+    stack->addWidget ( viewFinder );
 
-  featureTypes ["Dummy"] = Dummy;
-  featureTypes ["MOPS"] = MOPS;
-  featureTypes ["SURF"] = SURF;
+    featureTypes ["Dummy"] = Dummy;
+    featureTypes ["MOPS"] = MOPS;
+    featureTypes ["SURF"] = SURF;
 
-  matchTypes ["SSD"] = SSD;
-  matchTypes ["Ratio"] = Ratio;
+    matchTypes ["SSD"] = SSD;
+    matchTypes ["Ratio"] = Ratio;
 
-  QObject::connect ( viewFinder, SIGNAL ( alert ( const QString & ) ),
-                     statusBar, SLOT ( showMessage ( const QString & ) ) );
-  activateViewfinder ();
+    QObject::connect ( viewFinder, SIGNAL ( alert ( const QString & ) ),
+                       statusBar, SLOT ( showMessage ( const QString & ) ) );
+    activateViewfinder ();
 }
 
 void MaemoUI::activateViewfinder ()
 {
-  stack->setCurrentIndex ( 0 );
-  qRegisterMetaType<FCam::Frame>( "FCam::Frame" );
-  QObject::connect ( &CameraThread::getInstance (),
-                     SIGNAL ( imageCaptured ( const FCam::Frame & ) ), this,
-                     SLOT ( pictureTaken ( const FCam::Frame & ) ) );
-  viewFinder->show ();
+    stack->setCurrentIndex ( 0 );
+    qRegisterMetaType<FCam::Frame>( "FCam::Frame" );
+    QObject::connect ( &CameraThread::getInstance (),
+                       SIGNAL ( imageCaptured ( const FCam::Frame & ) ), this,
+                       SLOT ( pictureTaken ( const FCam::Frame & ) ) );
+    viewFinder->show ();
 }
 
 void MaemoUI::deactivateViewfinder ()
 {
-  QObject::disconnect ( &CameraThread::getInstance (),
-                        SIGNAL ( imageCaptured ( const FCam::Frame & ) ), this,
-                        SLOT ( pictureTaken ( const FCam::Frame & ) ) );
-  stack->setCurrentIndex ( 1 );
+    QObject::disconnect ( &CameraThread::getInstance (),
+                          SIGNAL ( imageCaptured ( const FCam::Frame & ) ), this,
+                          SLOT ( pictureTaken ( const FCam::Frame & ) ) );
+    stack->setCurrentIndex ( 1 );
 }
 
 FeatureType MaemoUI::getFeatureType ()
 {
-  return featureType;
+    return featureType;
 }
 
 MatchType MaemoUI::getMatchType ()
 {
-  return matchType;
+    return matchType;
 }
 
 void MaemoUI::setFeatureTypeAction ()
 {
-  QDialog * dialog = new QDialog ( this );
+    QDialog * dialog = new QDialog ( this );
 
-  dialog->setModal ( true );
-  dialog->setWindowTitle ( tr ( "Feature Type" ) );
-  QVBoxLayout * layout = new QVBoxLayout ( dialog );
-  QPushButton * okay = new QPushButton ( tr ( "Okay" ), dialog );
+    dialog->setModal ( true );
+    dialog->setWindowTitle ( tr ( "Feature Type" ) );
+    QVBoxLayout * layout = new QVBoxLayout ( dialog );
+    QPushButton * okay = new QPushButton ( tr ( "Okay" ), dialog );
 
-  QComboBox * combobox = new QComboBox ( dialog );
-  for ( std::map<QString, FeatureType>::iterator i = featureTypes.begin ();
-        i != featureTypes.end (); ++i )
-  {
-    combobox->addItem ( i->first );
-    if ( featureType == i->second )
+    QComboBox * combobox = new QComboBox ( dialog );
+    for ( std::map<QString, FeatureType>::iterator i = featureTypes.begin ();
+    i != featureTypes.end (); ++i )
     {
-      combobox->setCurrentIndex ( combobox->count () - 1 );
+        combobox->addItem ( i->first );
+        if ( featureType == i->second )
+        {
+            combobox->setCurrentIndex ( combobox->count () - 1 );
+        }
     }
-  }
-  QObject::connect ( combobox, SIGNAL ( currentIndexChanged ( const QString & ) ),
-                     this, SLOT ( updateFeatureType ( const QString & ) ) );
-  layout->addWidget ( combobox );
-  layout->addWidget ( okay );
-  QObject::connect ( okay, SIGNAL ( clicked () ),
-                     dialog, SLOT ( close () ) );
-  dialog->setLayout ( layout );
-  dialog->show ();
+    QObject::connect ( combobox, SIGNAL ( currentIndexChanged ( const QString & ) ),
+                       this, SLOT ( updateFeatureType ( const QString & ) ) );
+    layout->addWidget ( combobox );
+    layout->addWidget ( okay );
+    QObject::connect ( okay, SIGNAL ( clicked () ),
+                       dialog, SLOT ( close () ) );
+    dialog->setLayout ( layout );
+    dialog->show ();
 }
 
 void MaemoUI::setModeAction ()
 {
-  QDialog * dialog = new QDialog ( this );
+    QDialog * dialog = new QDialog ( this );
 
-  dialog->setModal ( true );
-  dialog->setWindowTitle ( tr ( "Mode" ) );
-  QVBoxLayout * layout = new QVBoxLayout ( dialog );
-  QPushButton * okay = new QPushButton ( tr ( "Okay" ), dialog );
+    dialog->setModal ( true );
+    dialog->setWindowTitle ( tr ( "Mode" ) );
+    QVBoxLayout * layout = new QVBoxLayout ( dialog );
+    QPushButton * okay = new QPushButton ( tr ( "Okay" ), dialog );
 
-  QComboBox * combobox = new QComboBox ( dialog );
-  combobox->addItem ( "Object Detection" );
-  combobox->addItem ( "Panorama" );
-  combobox->setEditable ( false );
-  combobox->setCurrentIndex ( panorama ? 1 : 0 );
-  QObject::connect ( combobox, SIGNAL ( currentIndexChanged ( const QString & ) ),
-                     this, SLOT ( updateMode ( const QString & ) ) );
-  layout->addWidget ( combobox );
-  layout->addWidget ( okay );
-  QObject::connect ( okay, SIGNAL ( clicked () ),
-                     dialog, SLOT ( close () ) );
-  dialog->setLayout ( layout );
-  dialog->show ();
+    QComboBox * combobox = new QComboBox ( dialog );
+    combobox->addItem ( "Object Detection" );
+    combobox->addItem ( "Panorama" );
+    combobox->setEditable ( false );
+    combobox->setCurrentIndex ( panorama ? 1 : 0 );
+    QObject::connect ( combobox, SIGNAL ( currentIndexChanged ( const QString & ) ),
+                       this, SLOT ( updateMode ( const QString & ) ) );
+    layout->addWidget ( combobox );
+    layout->addWidget ( okay );
+    QObject::connect ( okay, SIGNAL ( clicked () ),
+                       dialog, SLOT ( close () ) );
+    dialog->setLayout ( layout );
+    dialog->show ();
 }
 
 
 void MaemoUI::updateFeatureType ( const QString & name )
 {
-  featureType = featureTypes [name];
-  std::stringstream ss;
-  ss << "Feature type set to " << name.toStdString ();
-  emit alert ( tr ( ss.str ().c_str () ) );
+    featureType = featureTypes [name];
+    std::stringstream ss;
+    ss << "Feature type set to " << name.toStdString ();
+    emit alert ( tr ( ss.str ().c_str () ) );
 }
 
 void MaemoUI::updateMode ( const QString & name )
 {
-  panorama = ( name == "Panorama" );
-  std::stringstream ss;
-  ss << "Mode set to " << name.toStdString ();
-  emit alert ( tr ( ss.str ().c_str () ) );
+    panorama = ( name == "Panorama" );
+    std::stringstream ss;
+    ss << "Mode set to " << name.toStdString ();
+    emit alert ( tr ( ss.str ().c_str () ) );
 }
 
 void MaemoUI::setMatchTypeAction ()
 {
-  QDialog * dialog = new QDialog ( this );
+    QDialog * dialog = new QDialog ( this );
 
-  dialog->setModal ( true );
-  dialog->setWindowTitle ( tr ( "Match Type" ) );
-  QVBoxLayout * layout = new QVBoxLayout ( dialog );
-  QPushButton * okay = new QPushButton ( tr ( "Okay" ), dialog );
+    dialog->setModal ( true );
+    dialog->setWindowTitle ( tr ( "Match Type" ) );
+    QVBoxLayout * layout = new QVBoxLayout ( dialog );
+    QPushButton * okay = new QPushButton ( tr ( "Okay" ), dialog );
 
-  QComboBox * combobox = new QComboBox ( dialog );
-  for ( std::map<QString, MatchType>::iterator i = matchTypes.begin ();
-        i != matchTypes.end (); ++i )
-  {
-    combobox->addItem ( i->first );
-    if ( matchType == i->second )
+    QComboBox * combobox = new QComboBox ( dialog );
+    for ( std::map<QString, MatchType>::iterator i = matchTypes.begin ();
+    i != matchTypes.end (); ++i )
     {
-      combobox->setCurrentIndex ( combobox->count () - 1 );
+        combobox->addItem ( i->first );
+        if ( matchType == i->second )
+        {
+            combobox->setCurrentIndex ( combobox->count () - 1 );
+        }
     }
-  }
-  combobox->setEditable ( false );
-  QObject::connect ( combobox, SIGNAL ( currentIndexChanged ( const QString & ) ),
-                     this, SLOT ( updateMatchType ( const QString & ) ) );
-  layout->addWidget ( combobox );
-  layout->addWidget ( okay );
-  QObject::connect ( okay, SIGNAL ( clicked () ),
-                     dialog, SLOT ( close () ) );
-  dialog->setLayout ( layout );
-  dialog->show ();
+    combobox->setEditable ( false );
+    QObject::connect ( combobox, SIGNAL ( currentIndexChanged ( const QString & ) ),
+                       this, SLOT ( updateMatchType ( const QString & ) ) );
+    layout->addWidget ( combobox );
+    layout->addWidget ( okay );
+    QObject::connect ( okay, SIGNAL ( clicked () ),
+                       dialog, SLOT ( close () ) );
+    dialog->setLayout ( layout );
+    dialog->show ();
 }
 
 void MaemoUI::updateMatchType ( const QString & name )
 {
-  matchType = matchTypes [name];
-  std::stringstream ss;
-  ss << "Match type set to " << name.toStdString ();
-  emit alert ( tr ( ss.str ().c_str () ) );
+    matchType = matchTypes [name];
+    std::stringstream ss;
+    ss << "Match type set to " << name.toStdString ();
+    emit alert ( tr ( ss.str ().c_str () ) );
 }
 
 void MaemoUI::pictureTaken ( const FCam::Frame & frame )
 {
     printf("[pictureTaken]: you got here!\n");
-  if ( stack->count () == 2 )
-  {
-    QWidget * widget = stack->widget ( 1 );
-    stack->removeWidget ( widget );
-  }
-  if ( !panorama )
-  {
-//    QWidget * wizard = new FeaturesWizard ( this, frame );
-//    stack->addWidget ( wizard );
-//    QObject::connect ( wizard, SIGNAL ( alert ( const QString & ) ),
-//                       statusBar (), SLOT ( showMessage ( const QString & ) ) );
-//    wizard->show ();
-    deactivateViewfinder ();
-  }
-  else
-  {
-//    if ( !panorama_widget || panorama_widget->ready () )
-//    {
-//      panorama_widget = new Panorama ( this );
-//    }
-//    panorama_widget->imageCaptured ( frame );
-//    if ( panorama_widget->ready () )
-//    {
-//      stack->addWidget ( panorama_widget );
-//      QObject::connect ( panorama_widget, SIGNAL ( alert ( const QString & ) ),
-//                         statusBar (), SLOT ( showMessage ( const QString & ) ) );
-//      panorama_widget->show ();
-      deactivateViewfinder ();
-//    }
-  }
+    if ( stack->count () == 2 )
+    {
+        QWidget * widget = stack->widget ( 1 );
+        stack->removeWidget ( widget );
+    }
+    //  if ( !panorama )
+    //  {
+    ////    QWidget * wizard = new FeaturesWizard ( this, frame );
+    ////    stack->addWidget ( wizard );
+    ////    QObject::connect ( wizard, SIGNAL ( alert ( const QString & ) ),
+    ////                       statusBar (), SLOT ( showMessage ( const QString & ) ) );
+    ////    wizard->show ();
+    //    deactivateViewfinder ();
+    //  }
+    //  else
+    //  {
+    if ( !objdetect_widget || objdetect_widget->ready () )
+    {
+        printf("[pictureTaken]: create objdetect_widget\n");
+        objdetect_widget = new ObjDetect ( this );
+    }
+    printf("[pictureTaken]: going imageCaptured\n");
+    objdetect_widget->imageCaptured ( frame );
+    printf("[pictureTaken]: done imageCaptured\n");
+    if ( objdetect_widget->ready () )
+    {
+        stack->addWidget ( objdetect_widget );
+        QObject::connect ( objdetect_widget, SIGNAL ( alert ( const QString & ) ),
+                           statusBar (), SLOT ( showMessage ( const QString & ) ) );
+        objdetect_widget->show ();
+        deactivateViewfinder ();
+    }
+    //  }
 }

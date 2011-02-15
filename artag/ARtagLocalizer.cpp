@@ -1,5 +1,4 @@
 #include "ARtagLocalizer.h"
-#include "ARToolKitPlus/TrackerSingleMarkerImpl.h"
 
 #define FUDGE_FACTOR 0.97
 
@@ -41,12 +40,13 @@ ARtagLocalizer::~ARtagLocalizer()
 int ARtagLocalizer::initARtagPose(int width, int height, float markerWidth, float x_offset, float y_offset, float yaw_offset, float ffactor)
 {
     // create a tracker that does:
-    //  - 6x6 sized marker images
+    //  - 6x6 sized marker images (required for binary markers)
     //  - samples at a maximum of 6x6
     //  - works with luminance (gray) images
-    //  - can load a maximum of 1 pattern
-    //  - can detect a maximum of 8 patterns in one image
-    tracker = new ARToolKitPlus::TrackerSingleMarkerImpl<6,6,6,1,8>(width,height);
+    //  - can load a maximum of 0 non-binary pattern
+    //  - can detect a maximum of 8 patterns in one imagege
+    tracker = new ARToolKitPlus::TrackerSingleMarker(width, height, 8, 6, 6, 6, 0);
+
     imgwidth = width;
     imgheight = height;
     patternCenter_[0] = patternCenter_[1] = 0.0;
@@ -58,8 +58,8 @@ int ARtagLocalizer::initARtagPose(int width, int height, float markerWidth, floa
     tracker->setPixelFormat(ARToolKitPlus::PIXEL_FORMAT_LUM);
     // load a camera file.
     //if(!tracker->init("..\\..\\ARToolKitPlus\\data\\Unibrain_640x480.cal", 1.0f, 1000.0f))
-    if(!tracker->init("..\\..\\ARToolKitPlus\\data\\Unibrain_640x4801.cal", 1.0f, 1000.0f))
-	//if(!tracker->init("..\\..\\ARToolKitPlus\\data\\no_distortion.cal", 1.0f, 1000.0f))
+//    if(!tracker->init("..\\..\\ARToolKitPlus\\data\\Unibrain_640x4801.cal", 1.0f, 1000.0f))
+    if(!tracker->init("no_distortion.cal", 1.0f, 1000.0f))
     {
         printf("ERROR: init() failed\n");
         delete tracker;
@@ -102,6 +102,8 @@ bool ARtagLocalizer::getARtagPose(IplImage* src, IplImage* dst, int camID)
     }
     if (src->width != imgwidth || src->height != imgheight)
     {
+        printf("src->width: %d src->height %d\n", src->width, src->height);
+        printf("imgwidth: %d imgheight %d\n", imgwidth, imgheight);
         printf("Image passed in does not match initialized image size!!\n");
         return NULL;
     }
@@ -140,9 +142,9 @@ bool ARtagLocalizer::getARtagPose(IplImage* src, IplImage* dst, int camID)
                 continue;
             }
 
-            /*printf("Id: %d\t Conf: %.2f\n", markers[m].id, markers[m].cf);
+            printf("Id: %d\t Conf: %.2f\n", markers[m].id, markers[m].cf);
 			printf("x: %.2f \t y: %.2f \t z: %.2f \t yaw: %.2f\n", x,y,z,yaw);
-			printf("\n");*/
+                        printf("\n");
 
             char str[30];
             sprintf(str,"%d",markers[m].id);
