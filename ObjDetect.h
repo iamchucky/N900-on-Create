@@ -39,6 +39,7 @@ public:
     ~ObjDetect();
     bool ready ();
     void emit_alert ( const QString & );
+    void unready();
 
 signals:
     void alert ( const QString & );

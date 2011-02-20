@@ -51,3 +51,19 @@ unsigned int ARtag::getCamId() const
 {
 	return cam_id_;
 }
+
+void ARtag::setLocation(int u, int v)
+{
+        u_ = u;
+        v_ = v;
+}
+
+int ARtag::getU() const
+{
+    return u_;
+}
+
+int ARtag::getV() const
+{
+    return v_;
+}

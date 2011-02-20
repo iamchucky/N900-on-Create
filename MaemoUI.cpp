@@ -14,6 +14,10 @@
 #include <iostream>
 #include "N900Helpers.h"
 #include "ObjDetect.h"
+#include "mce/mode-names.h"
+#include "mce/dbus-names.h"
+#include <QtDBus>
+
 
 // Create and initialize the Maemo.
 MaemoUI::MaemoUI ( QWidget * parent ) : QMainWindow ( parent ),
@@ -26,30 +30,30 @@ featureType ( SURF ), matchType ( Ratio ), panorama ( false )
     setStatusBar ( statusBar );
 
     // Create the main window.
-    setWindowTitle ( tr ( "Detector" ) );
+    setWindowTitle ( tr ( "ObjDetect" ) );
 
     stack = new QStackedWidget ( this );
     setCentralWidget ( stack );
 
-    // Create the menu bar.
-    QMenuBar * menuBar = new QMenuBar ( this );
+//    // Create the menu bar.
+//    QMenuBar * menuBar = new QMenuBar ( this );
 
-    QAction * setFeatureType = new QAction ( tr ( "Set Feature Type" ), menuBar );
-    QObject::connect ( setFeatureType, SIGNAL ( triggered () ),
-                       this, SLOT ( setFeatureTypeAction () ) );
-    menuBar->addAction ( setFeatureType );
+//    QAction * setFeatureType = new QAction ( tr ( "Set Feature Type" ), menuBar );
+//    QObject::connect ( setFeatureType, SIGNAL ( triggered () ),
+//                       this, SLOT ( setFeatureTypeAction () ) );
+//    menuBar->addAction ( setFeatureType );
 
-    QAction * setMatchType = new QAction ( tr ( "Set Match Type" ), menuBar );
-    QObject::connect ( setMatchType, SIGNAL ( triggered () ),
-                       this, SLOT ( setMatchTypeAction () ) );
-    menuBar->addAction ( setMatchType );
+//    QAction * setMatchType = new QAction ( tr ( "Set Match Type" ), menuBar );
+//    QObject::connect ( setMatchType, SIGNAL ( triggered () ),
+//                       this, SLOT ( setMatchTypeAction () ) );
+//    menuBar->addAction ( setMatchType );
 
-    QAction * setMode = new QAction ( tr ( "Set Mode" ), menuBar );
-    QObject::connect ( setMode, SIGNAL ( triggered () ),
-                       this, SLOT ( setModeAction () ) );
-    menuBar->addAction ( setMode );
+//    QAction * setMode = new QAction ( tr ( "Set Mode" ), menuBar );
+//    QObject::connect ( setMode, SIGNAL ( triggered () ),
+//                       this, SLOT ( setModeAction () ) );
+//    menuBar->addAction ( setMode );
 
-    setMenuBar ( menuBar );
+//    setMenuBar ( menuBar );
 
     viewFinder = new Viewfinder ( this );
     stack->addWidget ( viewFinder );
@@ -73,6 +77,7 @@ void MaemoUI::activateViewfinder ()
     QObject::connect ( &CameraThread::getInstance (),
                        SIGNAL ( imageCaptured ( const FCam::Frame & ) ), this,
                        SLOT ( pictureTaken ( const FCam::Frame & ) ) );
+
     viewFinder->show ();
 }
 
@@ -82,6 +87,12 @@ void MaemoUI::deactivateViewfinder ()
                           SIGNAL ( imageCaptured ( const FCam::Frame & ) ), this,
                           SLOT ( pictureTaken ( const FCam::Frame & ) ) );
     stack->setCurrentIndex ( 1 );
+}
+
+Viewfinder * MaemoUI::getViewfinder()
+{
+    printf("[MaemoUI] getViewfinder\n");
+    return viewFinder;
 }
 
 FeatureType MaemoUI::getFeatureType ()
@@ -205,6 +216,8 @@ void MaemoUI::updateMatchType ( const QString & name )
 void MaemoUI::pictureTaken ( const FCam::Frame & frame )
 {
     printf("[pictureTaken]: you got here!\n");
+    QDBusConnection::systemBus().call(QDBusMessage::createMethodCall(MCE_SERVICE,
+    MCE_REQUEST_PATH,MCE_REQUEST_IF, MCE_PREVENT_BLANK_REQ));
     if ( stack->count () == 2 )
     {
         QWidget * widget = stack->widget ( 1 );
@@ -221,7 +234,8 @@ void MaemoUI::pictureTaken ( const FCam::Frame & frame )
     //  }
     //  else
     //  {
-    if ( !objdetect_widget || objdetect_widget->ready () )
+//    if ( !objdetect_widget || objdetect_widget->ready () )
+    if ( !objdetect_widget )
     {
         printf("[pictureTaken]: create objdetect_widget\n");
         objdetect_widget = new ObjDetect ( this );
@@ -231,11 +245,15 @@ void MaemoUI::pictureTaken ( const FCam::Frame & frame )
     printf("[pictureTaken]: done imageCaptured\n");
     if ( objdetect_widget->ready () )
     {
-        stack->addWidget ( objdetect_widget );
+//        stack->addWidget ( objdetect_widget );
         QObject::connect ( objdetect_widget, SIGNAL ( alert ( const QString & ) ),
                            statusBar (), SLOT ( showMessage ( const QString & ) ) );
-        objdetect_widget->show ();
-        deactivateViewfinder ();
+//        objdetect_widget->show ();
+//        deactivateViewfinder ();
+//        activateViewfinder ();
+        this->viewFinder->repaint();
+        objdetect_widget->unready();
+        CameraThread::getInstance().okayToCapture();
     }
     //  }
 }

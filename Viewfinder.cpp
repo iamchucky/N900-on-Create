@@ -1,6 +1,8 @@
 #include "Viewfinder.h"
 #include <iostream>
 #include "CameraThread.h"
+#include <QPainter>
+#include <QString>
 
 Viewfinder::Viewfinder ( QWidget * parent )
   : QWidget ( parent )
@@ -88,6 +90,8 @@ Viewfinder::Viewfinder ( QWidget * parent )
 
   CameraThread::getInstance ().setFramebuffer ( framebuffer () );
   CameraThread::getInstance ().start ();
+
+
 }
 
 bool Viewfinder::eventFilter ( QObject *, QEvent * event )
@@ -191,6 +195,8 @@ void Viewfinder::enable ()
     }
     filterInstalled = true;
   }
+
+
 }
 
 void Viewfinder::disable ()
@@ -208,4 +214,37 @@ void Viewfinder::disable ()
 FCam::Image Viewfinder::framebuffer ()
 {
   return framebuffer_;
+}
+
+void Viewfinder::paintEvent(QPaintEvent *)
+{
+
+    if (oText.size() > 0)
+    {
+        QPainter painter(this);
+        painter.setRenderHint(QPainter::Antialiasing);
+        painter.setPen(QPen(Qt::red));
+
+        for (int n = 0; n < oText.size(); ++n)
+        {
+            painter.drawLine(oText[n].u+10, oText[n].v+10, oText[n].u-10, oText[n].v-10);
+            painter.drawLine(oText[n].u-10, oText[n].v+10, oText[n].u+10, oText[n].v-10);
+            painter.drawText(oText[n].u+10, oText[n].v, QString("ID: %1").arg(oText[n].ID));
+            painter.drawText(oText[n].u+10, oText[n].v+20, QString("x: %1").arg(oText[n].poseX));
+            painter.drawText(oText[n].u+10, oText[n].v+40, QString("y: %1").arg(oText[n].poseY));
+            painter.drawText(oText[n].u+10, oText[n].v+60, QString("z: %1").arg(oText[n].poseZ));
+        }
+        oText.clear();
+    }
+}
+
+void Viewfinder::setText(OverlayText & overlaytxt)
+{
+    printf("[Viewfinder] text size is %d\n", oText.size());
+    oText.push_back(overlaytxt);
+}
+
+void Viewfinder::clearTextall()
+{
+    oText.clear();
 }

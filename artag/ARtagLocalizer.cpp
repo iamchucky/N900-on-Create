@@ -160,17 +160,19 @@ bool ARtagLocalizer::getARtagPose(IplImage* src, IplImage* dst, int camID)
             if (markers[m].id >= 0 && markers[m].id < 50 && !allStop)
             {
                 //				EnterCriticalSection(&tags_mutex);
-                ARtag * ar = tags[markers[m].id];
-                ar->setId(markers[m].id);
-                ar->setPose(&pose);
-                ar->setPoseAge(0);
-                ar->setCamId(camID);
+//                ARtag * ar = tags[markers[m].id];
+//                ar->setId(markers[m].id);
+//                ar->setPose(&pose);
+//                ar->setPoseAge(0);
+//                ar->setCamId(camID);
+//                ar->setLocation(markers[m].pos[0], markers[m].pos[1]);
 
                 ARtag mt;
                 mt.setId(markers[m].id);
                 mt.setPose(&pose);
                 mt.setPoseAge(0);
                 mt.setCamId(camID);
+                mt.setLocation(markers[m].pos[0], markers[m].pos[1]);
                 //				LeaveCriticalSection(&tags_mutex);
                 mytag.push_back(mt);
             }

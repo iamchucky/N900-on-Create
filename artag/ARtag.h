@@ -21,11 +21,17 @@ class ARtag
 		void setCamId(int id);
 		unsigned int getCamId() const;
 
+                void setLocation(int u, int v);
+                int getU() const;
+                int getV() const;
+
 	protected:
 		unsigned int id_;
 		CvMat * pose_;
 		unsigned int pose_age_;
 		unsigned int cam_id_;
+                int u_;
+                int v_;
 };
 
 #endif

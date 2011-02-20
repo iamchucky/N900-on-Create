@@ -17,47 +17,66 @@
 #include <QEvent>
 #include <FCam/Image.h>
 #include "CameraThread.h"
+#include <QPaintEvent>
+
+struct OverlayText
+{
+    QString text;
+    int u;
+    int v;
+    int ID;
+    float poseX;
+    float poseY;
+    float poseZ;
+};
 
 class Viewfinder : public QWidget {
-Q_OBJECT
+    Q_OBJECT
 public:
-Viewfinder( QWidget * parent = NULL );
-~Viewfinder();
+    Viewfinder( QWidget * parent = NULL );
+    ~Viewfinder();
+
+    void setText(OverlayText & overlaytxt);
+    void clearTextall();
 
 signals:
-void alert ( const QString & );
+    void alert ( const QString & );
 
 private:
-// If you draw on a widget at the same place as this one, using
-// any color but the one below, it will show through the overlay.
-static QColor colorKey ()
-{
-  return QColor ( 10, 0, 10 );
-}
+    // If you draw on a widget at the same place as this one, using
+    // any color but the one below, it will show through the overlay.
+    static QColor colorKey ()
+    {
+        return QColor ( 10, 0, 10 );
+    }
 
-// A reference to the frame buffer
-FCam::Image framebuffer ();
+    // A reference to the frame buffer
+    FCam::Image framebuffer ();
 
-void enable ();
-void disable ();
+    std::vector<OverlayText> oText;
+
+    void enable ();
+    void disable ();
 
 protected:
 
-void resizeEvent ( QResizeEvent * );
-void moveEvent ( QMoveEvent * );
-void showEvent ( QShowEvent * );
-void hideEvent ( QHideEvent * );
-bool eventFilter ( QObject * receiver, QEvent * event );
+    void resizeEvent ( QResizeEvent * );
+    void moveEvent ( QMoveEvent * );
+    void showEvent ( QShowEvent * );
+    void hideEvent ( QHideEvent * );
+    bool eventFilter ( QObject * receiver, QEvent * event );
+    void paintEvent(QPaintEvent *);
 
-FCam::Image framebuffer_;
+    FCam::Image framebuffer_;
 
-//struct fb_var_screeninfo var_info;
-struct fb_var_screeninfo overlay_info;
-struct omapfb_mem_info mem_info;
-struct omapfb_plane_info plane_info;
-int overlay_fd;
+    //struct fb_var_screeninfo var_info;
+    struct fb_var_screeninfo overlay_info;
+    struct omapfb_mem_info mem_info;
+    struct omapfb_plane_info plane_info;
+    int overlay_fd;
 
-bool filterInstalled;
+    bool filterInstalled;
+
 };
 
 #endif

@@ -9,31 +9,34 @@
 class InfoWidget;
 
 class CameraThread : public QThread {
-Q_OBJECT
-CameraThread( QObject * parent = NULL ) : QThread ( parent )
-{
-  keepGoing = true;
-}
+    Q_OBJECT
+    CameraThread( QObject * parent = NULL ) : QThread ( parent )
+    {
+        keepGoing = true;
+        emitFrame = true;
+    }
 
 public:
-void stop ()
-{
-  printf ( "Stopping!\n" );
-  keepGoing = false;
-}
+    void stop ()
+    {
+        printf ( "Stopping!\n" );
+        keepGoing = false;
+    }
 
 protected:
-void run ();
+    void run ();
 private:
-bool keepGoing;
-FCam::Image overlay;
+    bool keepGoing;
+    FCam::Image overlay;
+    bool emitFrame;
 
 signals:
-void imageCaptured ( FCam::Frame );
+    void imageCaptured ( FCam::Frame );
 
 public:
-static CameraThread & getInstance ();
-void setFramebuffer ( FCam::Image );
+    static CameraThread & getInstance ();
+    void setFramebuffer ( FCam::Image );
+    void okayToCapture();
 };
 
 #endif

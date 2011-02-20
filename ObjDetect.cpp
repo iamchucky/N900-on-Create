@@ -6,6 +6,8 @@
 #include <QPainter>
 #include <QPicture>
 #include <opencv/highgui.h>
+#include "Viewfinder.h"
+#include <QString>
 
 ObjDetect::ObjDetect ( MaemoUI * parent )
     : QDialog ( parent ), img1 ( 0 ), img2 ( 0 ), ui ( parent ), isready ( false ),
@@ -17,7 +19,7 @@ ObjDetect::ObjDetect ( MaemoUI * parent )
     //  layout->addWidget ( progressBar );
     //  setLayout ( layout );
     printf("[ObjDetect]: Constructor\n");
-    arloc.initARtagPose(480,360,160.f,0.f,0.f,0.f);
+    arloc.initARtagPose(800,480,160.f,0.f,0.f,0.f);
     printf("[ObjDetect]: Constructor done\n");
 }
 
@@ -41,6 +43,10 @@ void ObjDetect::emit_alert ( const QString & msg )
 bool ObjDetect::ready ()
 {
     return isready;
+}
+void ObjDetect::unready()
+{
+    isready = false;
 }
 
 void ObjDetect::mousePressEvent ( QMouseEvent * event )
@@ -77,27 +83,45 @@ void ObjDetect::imageCaptured ( const FCam::Frame & frame )
 //        thread->start ();
 //    }
 
+     for (int n = 0; n < arloc.getARtagSize(); ++n)
+     {
+         ARtag * ar = arloc.getARtag(n);
+         CvMat * pose = ar->getPose();
+//         QString str;
+//         str = QString("ID: %1\t ( %2, %3, %4 )").arg(tagID).arg((double)poseX).arg((double)poseY).arg((double)poseZ);
+         OverlayText ot;
+         ot.u = ar->getU();
+         ot.v = ar->getV();
+         ot.ID = ar->getId();
+         ot.poseX = CV_MAT_ELEM(*pose , float, 0, 3);
+         ot.poseY = CV_MAT_ELEM(*pose , float, 1, 3);
+         ot.poseZ = CV_MAT_ELEM(*pose , float, 2, 3);
+         ui->getViewfinder()->setText(ot);
+     }
+
      cvReleaseImage(&gray);
      isready = true;
      completed = true;
-     image = QImage ( ( const uchar * )img1->imageData,
-                      img1->width,
-                      img1->height,
-                      img1->widthStep,
-                      QImage::Format_RGB888 );
-     canvas = new QLabel ( this );
-     //  progressBar->hide ();
-//     layout ()->addWidget ( canvas );
-     QHBoxLayout * layout = new QHBoxLayout ( this );
-     layout->addWidget ( canvas );
-     setLayout ( layout );
-     QPicture picture;
-     QPainter painter;
-     painter.begin ( &picture );
-     painter.drawImage ( QRect ( QPoint ( 0, 0 ), QPoint ( 800, 600 ) ), image );
-     painter.end ();
-     canvas->setPicture ( picture );
-     canvas->show ();
+
+//     image = QImage ( ( const uchar * )img1->imageData,
+//                      img1->width,
+//                      img1->height,
+//                      img1->widthStep,
+//                      QImage::Format_RGB888 );
+//     canvas = new QLabel ( this );
+//     //  progressBar->hide ();
+
+//     QHBoxLayout * layout = new QHBoxLayout ( this );
+//     layout->addWidget ( canvas );
+//     setLayout ( layout );
+//     QPicture picture;
+//     QPainter painter;
+//     painter.begin ( &picture );
+////     painter.drawImage ( QRect ( QPoint ( 0, 0 ), QPoint ( 800, 600 ) ), image );
+//     painter.drawText(arloc.getARtag());
+//     painter.end ();
+//     canvas->setPicture ( picture );
+//     canvas->show ();
 }
 
 void ObjDetect::computed ()

@@ -8,9 +8,9 @@
 #include <QString>
 #include <map>
 #include <opencv/cv.h>
-#include "ImageView.h"
 #include <FCam/N900.h>
 #include <QStackedWidget>
+#include <QPainter>
 #include "ObjDetect.h"
 
 class Viewfinder;
@@ -22,37 +22,39 @@ enum FeatureType { Dummy = 1, MOPS, SURF };
 // The MaemoUI class controls the Maemo.  Feel free to play around with
 // the Maemo if you'd like.
 class MaemoUI : public QMainWindow {
-Q_OBJECT
+    Q_OBJECT
 
-std::map<QString, MatchType> matchTypes;
-std::map<QString, FeatureType> featureTypes;
-Viewfinder * viewFinder;
-QStackedWidget * stack;
-FeatureType featureType;
-MatchType matchType;
-ObjDetect * objdetect_widget;
-bool panorama;
+    std::map<QString, MatchType> matchTypes;
+    std::map<QString, FeatureType> featureTypes;
+    Viewfinder * viewFinder;
+    QStackedWidget * stack;
+    FeatureType featureType;
+    MatchType matchType;
+    ObjDetect * objdetect_widget;
+    QPainter * painter;
+    bool panorama;
 
 public:
-// Create the Maemo.
-MaemoUI ( QWidget * = 0 );
-void activateViewfinder ();
-void deactivateViewfinder ();
-FeatureType getFeatureType ();
-MatchType getMatchType ();
+    // Create the Maemo.
+    MaemoUI ( QWidget * = 0 );
+    void activateViewfinder ();
+    void deactivateViewfinder ();
+    Viewfinder * getViewfinder();
+    FeatureType getFeatureType ();
+    MatchType getMatchType ();
 
 signals:
-void alert ( const QString & );
+    void alert ( const QString & );
 
-// Here are the callback functions.
+    // Here are the callback functions.
 public slots:
-void updateFeatureType ( const QString & );
-void updateMatchType ( const QString & );
-void updateMode ( const QString & );
-void setFeatureTypeAction ();
-void setMatchTypeAction ();
-void setModeAction ();
-void pictureTaken ( const FCam::Frame & );
+    void updateFeatureType ( const QString & );
+    void updateMatchType ( const QString & );
+    void updateMode ( const QString & );
+    void setFeatureTypeAction ();
+    void setMatchTypeAction ();
+    void setModeAction ();
+    void pictureTaken ( const FCam::Frame & );
 };
 
 #endif
