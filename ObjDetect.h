@@ -9,6 +9,7 @@
 #include <QProgressBar>
 #include <QImage>
 #include <QMouseEvent>
+#include <QTime>
 #include "artag/ARtagLocalizer.h"
 
 class ObjDetectThread;
@@ -29,6 +30,7 @@ class ObjDetect : public QDialog
     bool completed;
     QImage image;
     QLabel * canvas;
+    QTime t;
 
     ARtagLocalizer arloc;
 

@@ -21,13 +21,13 @@
 
 struct OverlayText
 {
-    QString text;
     int u;
     int v;
     int ID;
     float poseX;
     float poseY;
     float poseZ;
+    double timestamp;
 };
 
 class Viewfinder : public QWidget {

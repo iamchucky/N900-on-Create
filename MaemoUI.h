@@ -12,8 +12,10 @@
 #include <QStackedWidget>
 #include <QPainter>
 #include "ObjDetect.h"
+#include "Sender.h"
 
 class Viewfinder;
+class Sender;
 //class FeaturesWizard;
 
 enum MatchType { SSD = 1, Ratio };
@@ -42,6 +44,8 @@ public:
     Viewfinder * getViewfinder();
     FeatureType getFeatureType ();
     MatchType getMatchType ();
+
+    Sender * udpSender;
 
 signals:
     void alert ( const QString & );

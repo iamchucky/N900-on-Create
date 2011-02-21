@@ -35,6 +35,8 @@ featureType ( SURF ), matchType ( Ratio ), panorama ( false )
     stack = new QStackedWidget ( this );
     setCentralWidget ( stack );
 
+    udpSender = new Sender;
+
 //    // Create the menu bar.
 //    QMenuBar * menuBar = new QMenuBar ( this );
 
@@ -91,7 +93,7 @@ void MaemoUI::deactivateViewfinder ()
 
 Viewfinder * MaemoUI::getViewfinder()
 {
-    printf("[MaemoUI] getViewfinder\n");
+//    printf("[MaemoUI] getViewfinder\n");
     return viewFinder;
 }
 
@@ -215,7 +217,7 @@ void MaemoUI::updateMatchType ( const QString & name )
 
 void MaemoUI::pictureTaken ( const FCam::Frame & frame )
 {
-    printf("[pictureTaken]: you got here!\n");
+//    printf("[pictureTaken]: you got here!\n");
     QDBusConnection::systemBus().call(QDBusMessage::createMethodCall(MCE_SERVICE,
     MCE_REQUEST_PATH,MCE_REQUEST_IF, MCE_PREVENT_BLANK_REQ));
     if ( stack->count () == 2 )
@@ -237,12 +239,12 @@ void MaemoUI::pictureTaken ( const FCam::Frame & frame )
 //    if ( !objdetect_widget || objdetect_widget->ready () )
     if ( !objdetect_widget )
     {
-        printf("[pictureTaken]: create objdetect_widget\n");
+//        printf("[pictureTaken]: create objdetect_widget\n");
         objdetect_widget = new ObjDetect ( this );
     }
-    printf("[pictureTaken]: going imageCaptured\n");
+//    printf("[pictureTaken]: going imageCaptured\n");
     objdetect_widget->imageCaptured ( frame );
-    printf("[pictureTaken]: done imageCaptured\n");
+//    printf("[pictureTaken]: done imageCaptured\n");
     if ( objdetect_widget->ready () )
     {
 //        stack->addWidget ( objdetect_widget );

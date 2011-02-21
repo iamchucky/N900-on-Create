@@ -142,15 +142,15 @@ bool ARtagLocalizer::getARtagPose(IplImage* src, IplImage* dst, int camID)
                 continue;
             }
 
-            printf("Id: %d\t Conf: %.2f\n", markers[m].id, markers[m].cf);
-			printf("x: %.2f \t y: %.2f \t z: %.2f \t yaw: %.2f\n", x,y,z,yaw);
-                        printf("\n");
+//            printf("Id: %d\t Conf: %.2f\n", markers[m].id, markers[m].cf);
+//			printf("x: %.2f \t y: %.2f \t z: %.2f \t yaw: %.2f\n", x,y,z,yaw);
+//                        printf("\n");
 
-            char str[30];
-            sprintf(str,"%d",markers[m].id);
-            cvPutText (dst,str,cvPoint( markers[m].pos[0]+25,markers[m].pos[1]+10),&cvFont(3,3),cvScalar(255,0,0));
-            sprintf(str,"(%.2f,%.2f,%.2f)", x*fudge + xoffset, -(y*fudge + yoffset), yaw + yawoffset);
-            cvPutText (dst,str,cvPoint( markers[m].pos[0]+25,markers[m].pos[1]+25),&cvFont(1,1),cvScalar(255,0,0));
+//            char str[30];
+//            sprintf(str,"%d",markers[m].id);
+//            cvPutText (dst,str,cvPoint( markers[m].pos[0]+25,markers[m].pos[1]+10),&cvFont(3,3),cvScalar(255,0,0));
+//            sprintf(str,"(%.2f,%.2f,%.2f)", x*fudge + xoffset, -(y*fudge + yoffset), yaw + yawoffset);
+//            cvPutText (dst,str,cvPoint( markers[m].pos[0]+25,markers[m].pos[1]+25),&cvFont(1,1),cvScalar(255,0,0));
 
             cv::Mat PoseM(4, 4, CV_32F, modelViewMatrix_);
             cv::transpose(PoseM,PoseM);

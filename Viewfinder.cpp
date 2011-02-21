@@ -240,7 +240,7 @@ void Viewfinder::paintEvent(QPaintEvent *)
 
 void Viewfinder::setText(OverlayText & overlaytxt)
 {
-    printf("[Viewfinder] text size is %d\n", oText.size());
+//    printf("[Viewfinder] text size is %d\n", oText.size());
     oText.push_back(overlaytxt);
 }
 
